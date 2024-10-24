@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voer Calculator voor Honden</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .result {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .size-info, .feeding-info {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 16px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Hond Voer Calculator</h1>
+
+    <label for="ras">Ras van de hond:</label>
+    <input type="text" id="ras" placeholder="Voer het ras in" oninput="checkRas()">
+    
+    <label for="ras-keuze" id="keuze-label" style="display:none;">Kies een standaard ras of categorie:</label>
+    <select id="ras-keuze" style="display:none;" onchange="setRas()">
+        <option value="">Selecteer een optie</option>
+        <option value="chihuahua">Klein ras: Chihuahua (tot 5 kg)</option>
+        <option value="maltezer">Klein ras: Maltezer (tot 5 kg)</option>
+        <option value="pomeranian">Klein ras: Pomeranian (tot 5 kg)</option>
+        <option value="duitse herder">Middelgroot ras: Duitse Herder (20-40 kg)</option>
+        <option value="labrador">Middelgroot ras: Labrador (25-40 kg)</option>
+        <option value="beagle">Middelgroot ras: Beagle (10-15 kg)</option>
+        <option value="duitse dog">Groot ras: Duitse Dog (40-90 kg)</option>
+        <option value="golden retriever">Groot ras: Golden Retriever (25-35 kg)</option>
+        <option value="rottweiler">Groot ras: Rottweiler (30-50 kg)</option>
+        <option value="sint-bernard">Zeer groot ras: Sint-Bernard (50-90 kg)</option>
+        <option value="ierse wolfshond">Zeer groot ras: Ierse Wolfshond (50-80 kg)</option>
+    </select>
+
+    <label for="gewicht">Gewicht van de hond (in kg):</label>
+    <input type="number" id="gewicht" placeholder="Voer het gewicht in" min="1">
+
+    <label for="leeftijd">Leeftijd van de hond (in jaren):</label>
+    <input type="number" id="leeftijd" placeholder="Voer de leeftijd in" min="0" step="0.1">
+
+    <label>
+        <input type="checkbox" id="zwanger"> Is de hond zwanger?
+    </label>
+    <label>
+        <input type="checkbox" id="rashond"> Is het een rashond?
+    </label>
+
+    <button onclick="berekenVoer()">Bereken Dagelijkse Hoeveelheid Voer</button>
+
+    <div class="size-info" id="rasGrootte"></div>
+    <div class="feeding-info" id="voerPerDag"></div>
+    <div class="result" id="resultaat"></div>
+</div>
+
+<script>
+    function checkRas() {
+        const rasInput = document.getElementById('ras').value.trim().toLowerCase();
+        const rasKeuze = document.getElementById('ras-keuze');
+        const keuzeLabel = document.getElementById('keuze-label');
+
+        if (rasInput === "") {
+            rasKeuze.style.display = "none";
+            keuzeLabel.style.display = "none";
+        } else {
+            rasKeuze.style.display = "none"; // Hide the dropdown if user is typing
+            keuzeLabel.style.display = "none"; // Hide the label
+        }
+    }
+
+    function setRas() {
+        const rasKeuze = document.getElementById('ras-keuze').value;
+        document.getElementById('ras').value = rasKeuze; // Set the input value to the selected option
+        document.getElementById('ras-keuze').style.display = "none"; // Hide the dropdown
+        document.getElementById('keuze-label').style.display = "none"; // Hide the label
+    }
+
+    function berekenVoer() {
+        const ras = document.getElementById('ras').value.toLowerCase();
+        const gewicht = parseFloat(document.getElementById('gewicht').value);
+        const leeftijd = parseFloat(document.getElementById('leeftijd').value);
+        const zwanger = document.getElementById('zwanger').checked;
+        const rashond = document.getElementById('rashond').checked;
+
+        let dagelijkseHoeveelheid;
+        let factor;
+        let grootte;
+        let voerPerDag;
+
+        // Correctiefactoren voor verschillende rassen en bepaling van grootte
+        if (ras.includes('chihuahua') || ras.includes('maltezer') || ras.includes('pomeranian')) {
+            factor = 35; // Kleine rassen
+            grootte = "Klein ras";
+        } else if (ras.includes('duitse herder') || ras.includes('labrador') || ras.includes('beagle')) {
+            factor = 30; // Middelgrote rassen
+            grootte = "Middelgroot ras";
+        } else if (ras.includes('duitse dog') || ras.includes('golden retriever') || ras.includes('rottweiler')) {
+            factor = 25; // Grote rassen
+            grootte = "Groot ras";
+        } else if (ras.includes('sint-bernard') || ras.includes('ierse wolfshond')) {
+            factor = 20; // Zeer grote rassen
+            grootte = "Zeer groot ras";
+        } else {
+            factor = 30; // Standaardfactor als het ras niet specifiek wordt herkend
+            grootte = "Onbekend ras, kies uit de standaard opties.";
+            document.getElementById('ras-keuze').style.display = "block"; // Toon de dropdown voor standaard opties
+            document.getElementById('keuze-label').style.display = "block"; // Toon de label
+        }
+
+        // Extra voer voor zwangere honden
+        if (zwanger) {
+            factor *= 1.2; // 20% meer voer voor zwangere honden
+        }
+
+        // Weergeven van de grootte van het ras
+        document.getElementById('rasGrootte').innerText = `Dit is een ${grootte}.`;
+
+        // Berekening van de dagelijkse hoeveelheid voer
+        if (gewicht > 0) {
+            dagelijkseHoeveelheid = gewicht * factor; // Voerberekening op basis van gewicht en rasfactor
+            if (rashond) {
+                dagelijkseHoeveelheid *= 1.1; // 10% meer voor rashonden
+            }
+            document.getElementById('resultaat').innerText = `Je moet ${dagelijkseHoeveelheid.toFixed(2)} gram voer per dag geven aan een ${ras} van ${gewicht} kg.`;
+        } else {
+            document.getElementById('resultaat').innerText = 'Voer een geldig gewicht in.';
+        }
+
+        // Berekening van het aantal keren voeren per dag op basis van leeftijd
+        if (leeftijd > 0) {
+            if (leeftijd < 2) {
+                voerPerDag = "Je moet 3 keer per dag voeren.";
+            } else {
+                voerPerDag = "Je moet 2 keer per dag voeren.";
+            }
+            document.getElementById('voerPerDag').innerText = voerPerDag;
+        } else {
+            document.getElementById('voerPerDag').innerText = 'Voer een geldige leeftijd in.';
+        }
+    }
+</script>
+
+</body>
+</html>
